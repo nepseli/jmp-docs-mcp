@@ -1,0 +1,182 @@
+# JMP vocabulary bridge.
+#
+# JMP names many standard techniques its own way. Measured on the real corpus:
+# the phrase "random forest" appears ZERO times on bootstrap-forest.shtml, and
+# "gradient boosting" ZERO times on boosted-tree.shtml. Without this file a user
+# asking "how do I run a random forest in JMP?" retrieves nothing useful --
+# BM25 has no lexical overlap and embeddings are unreliable on product proper
+# nouns.
+#
+# Each entry maps the words a *user* types to the words *JMP* uses.
+#   jmp:  JMP's own terminology (platform / menu / feature names)
+#   user: what someone would actually type
+#
+# Used at both ends on purpose:
+#   index time - user terms are appended to the BM25 text of chunks that
+#                mention the JMP term, so lexical search can find them
+#   query time - matched JMP terms are injected into the expanded queries
+#
+# Every entry is checked by tests/test_aliases.py: querying the user terms must
+# surface a chunk containing one of the JMP terms.
+
+version: 1
+
+aliases:
+  # ---------------- predictive modelling / machine learning ----------------
+  - {category: predictive, jmp: [Bootstrap Forest],        user: [random forest, random forests, bagged trees, bagging]}
+  - {category: predictive, jmp: [Boosted Tree],            user: [gradient boosting, gradient boosted trees, xgboost, gbm, boosting]}
+  - {category: predictive, jmp: [Partition],               user: [decision tree, classification tree, regression tree, cart, recursive partitioning]}
+  - {category: predictive, jmp: [Neural],                  user: [neural network, neural net, multilayer perceptron, mlp, deep learning]}
+  - {category: predictive, jmp: [K Nearest Neighbors],     user: [knn, k nearest neighbour, nearest neighbor classifier]}
+  - {category: predictive, jmp: [Naive Bayes],             user: [naive bayes classifier]}
+  - {category: predictive, jmp: [Support Vector Machines], user: [svm, support vector machine]}
+  - {category: predictive, jmp: [Generalized Regression],  user: [lasso, ridge regression, elastic net, regularization, penalized regression]}
+  - {category: predictive, jmp: [Partial Least Squares],   user: [pls, pls regression]}
+  - {category: predictive, jmp: [Model Comparison],        user: [compare models, model selection, best model, model leaderboard]}
+  - {category: predictive, jmp: [Make Validation Column, Validation], user: [cross validation, train test split, holdout set, k-fold]}
+  - {category: predictive, jmp: [Column Contributions, Variable Importance], user: [feature importance, variable importance, important variables]}
+  - {category: predictive, jmp: [ROC Curve],               user: [roc, auc, area under the curve]}
+  - {category: predictive, jmp: [Confusion Matrix],        user: [confusion matrix, classification accuracy]}
+  - {category: predictive, jmp: [Formula Depot],           user: [deploy model, export model, score new data, model scoring]}
+  - {category: predictive, jmp: [Text Explorer],           user: [text mining, nlp, sentiment analysis, topic model, word cloud]}
+
+  # ---------------- classical statistics ----------------
+  - {category: stats, jmp: [Oneway, Fit Y by X],      user: [t test, t-test, two sample t test, compare two groups]}
+  - {category: stats, jmp: [Oneway, Fit Y by X],      user: [anova, one way anova, analysis of variance, compare means]}
+  - {category: stats, jmp: [Fit Model],               user: [two way anova, factorial anova, ancova, analysis of covariance]}
+  - {category: stats, jmp: [Manova, Fit Model],       user: [manova, multivariate analysis of variance]}
+  - {category: stats, jmp: [Contingency, Fit Y by X], user: [chi square test, chi-square, contingency table, crosstab, cross tabulation]}
+  - {category: stats, jmp: [Multivariate],            user: [correlation, correlation matrix, pearson correlation, scatterplot matrix]}
+  - {category: stats, jmp: [Bivariate, Fit Y by X, Fit Least Squares], user: [linear regression, simple regression, least squares, ols, trend line, line of best fit]}
+  - {category: stats, jmp: [Fit Model, Fit Least Squares], user: [multiple regression, multiple linear regression]}
+  - {category: stats, jmp: [Nominal Logistic, Logistic, Fit Model], user: [logistic regression, binary classification model, log odds]}
+  - {category: stats, jmp: [Generalized Linear Model], user: [glm, poisson regression, count regression, negative binomial]}
+  - {category: stats, jmp: [Mixed Model, Fit Model],   user: [mixed model, random effects, repeated measures, hierarchical model, multilevel model]}
+  - {category: stats, jmp: [Nonparametric],            user: [nonparametric test, wilcoxon, mann whitney, kruskal wallis, rank test]}
+  - {category: stats, jmp: [Sample Size and Power],    user: [power analysis, sample size calculation, how many runs, required sample size, statistical power]}
+  - {category: stats, jmp: [Distribution, Continuous Fit, Goodness of Fit], user: [normality test, shapiro wilk, anderson darling, normally distributed, test for normality]}
+  - {category: stats, jmp: [Explore Outliers],         user: [outlier detection, find outliers, remove outliers, anomalies]}
+  - {category: stats, jmp: [Explore Missing Values, Missing Data Pattern], user: [missing data, imputation, impute missing values, nulls]}
+  - {category: stats, jmp: [Tolerance Intervals],      user: [tolerance interval]}
+  - {category: stats, jmp: [Equivalence Test],         user: [equivalence testing, tost, non inferiority]}
+  - {category: stats, jmp: [Bootstrap],                user: [bootstrapping, resampling, bootstrap confidence interval]}
+  - {category: stats, jmp: [Multiple Comparisons, Tukey HSD], user: [post hoc test, multiple comparisons, tukey, bonferroni, pairwise comparison]}
+
+  # ---------------- multivariate ----------------
+  - {category: multivariate, jmp: [Principal Components], user: [pca, principal component analysis, dimension reduction, scree plot]}
+  - {category: multivariate, jmp: [Factor Analysis],      user: [factor analysis, exploratory factor analysis, varimax]}
+  - {category: multivariate, jmp: [Cluster, K Means Cluster], user: [k means, kmeans, clustering, cluster analysis, segment my data]}
+  - {category: multivariate, jmp: [Hierarchical Cluster], user: [hierarchical clustering, dendrogram, ward linkage]}
+  - {category: multivariate, jmp: [Discriminant],         user: [discriminant analysis, lda, linear discriminant]}
+  - {category: multivariate, jmp: [Multidimensional Scaling], user: [mds, multidimensional scaling]}
+  - {category: multivariate, jmp: [Cluster Variables],    user: [variable clustering, group similar columns]}
+
+  # ---------------- quality / six sigma ----------------
+  # Prefer short distinctive terms over full sentences: "capable" matches
+  # "check if my process is capable", where the whole phrase would not.
+  - {category: quality, jmp: [Process Capability],       user: [cpk, cp, ppk, process capability, capability analysis, capable, capability, spec limits, out of spec]}
+  - {category: quality, jmp: [Control Chart Builder, Control Chart], user: [control chart, spc, statistical process control, xbar chart, i-mr chart, shewhart chart, run chart]}
+  - {category: quality, jmp: [Variability Chart, Measurement Systems Analysis], user: [gage r&r, gauge r and r, msa, measurement system analysis, repeatability and reproducibility]}
+  - {category: quality, jmp: [Pareto Plot],              user: [pareto chart, pareto analysis, vital few]}
+  - {category: quality, jmp: [Attribute Gauge],          user: [attribute agreement analysis, kappa, inspector agreement]}
+  - {category: quality, jmp: [Model Driven Multivariate Control Chart], user: [multivariate control chart, hotelling t2, t squared chart]}
+  - {category: quality, jmp: [CUSUM Control Chart],      user: [cusum, cumulative sum chart]}
+  - {category: quality, jmp: [Legacy Control Charts, Control Chart Builder], user: [ewma chart, moving average chart]}
+
+  # ---------------- reliability & survival ----------------
+  - {category: reliability, jmp: [Life Distribution],  user: [weibull analysis, weibull, life data analysis, failure distribution]}
+  - {category: reliability, jmp: [Survival, Life Distribution], user: [survival analysis, kaplan meier, censored data, time to event]}
+  - {category: reliability, jmp: [Fit Life by X],      user: [accelerated life testing, alt, arrhenius, stress testing]}
+  - {category: reliability, jmp: [Reliability Growth], user: [reliability growth, crow amsaa, duane plot]}
+  - {category: reliability, jmp: [Recurrence Analysis], user: [mtbf, mean time between failures, repairable systems]}
+  - {category: reliability, jmp: [Degradation],        user: [degradation analysis, wear out, drift to failure]}
+  - {category: reliability, jmp: [Proportional Hazards, Fit Model], user: [cox regression, proportional hazards, hazard ratio]}
+
+  # ---------------- design of experiments ----------------
+  - {category: doe, jmp: [Custom Design, DOE],           user: [design of experiments, doe, experimental design, design an experiment]}
+  - {category: doe, jmp: [Custom Design],                user: [optimal design, d-optimal, i-optimal, computer generated design]}
+  - {category: doe, jmp: [Screening Design, Full Factorial Design], user: [factorial design, full factorial, fractional factorial, 2^k design]}
+  - {category: doe, jmp: [Definitive Screening Design],  user: [definitive screening, dsd]}
+  - {category: doe, jmp: [Response Surface Design],      user: [response surface, rsm, central composite, box behnken, ccd]}
+  - {category: doe, jmp: [Mixture Design],               user: [mixture design, formulation experiment, simplex design]}
+  - {category: doe, jmp: [Taguchi Arrays],               user: [taguchi, orthogonal array, robust design]}
+  - {category: doe, jmp: [Custom Design, Hard to Change], user: [split plot, whole plot, hard to change factor, restricted randomization]}
+  - {category: doe, jmp: [Augment Design],               user: [augment a design, add runs, fold over, sequential experimentation]}
+  - {category: doe, jmp: [Evaluate Design, Design Diagnostics], user: [design power, design evaluation, alias matrix, correlation of effects]}
+  - {category: doe, jmp: [Space Filling Design],         user: [space filling, latin hypercube, computer experiment]}
+  - {category: doe, jmp: [Covering Array],               user: [covering array, combinatorial testing, pairwise testing]}
+  - {category: doe, jmp: [Easy DOE],                     user: [guided doe, doe wizard, simple doe]}
+
+  # ---------------- profiling & optimisation ----------------
+  - {category: profiler, jmp: [Profiler, Prediction Profiler], user: [what if analysis, sensitivity analysis, prediction profiler, tornado]}
+  - {category: profiler, jmp: [Desirability Function, Profiler], user: [optimize response, desirability, optimal settings, multiple response optimization]}
+  - {category: profiler, jmp: [Simulator],               user: [monte carlo simulation, simulate responses, risk analysis]}
+  - {category: profiler, jmp: [Contour Profiler],        user: [contour profiler, sweet spot, operating window]}
+  - {category: profiler, jmp: [Defect Profiler],         user: [defect rate, ppm defective, out of spec probability]}
+  - {category: profiler, jmp: [Design Space Profiler],   user: [design space, proven acceptable range, par]}
+
+  # ---------------- data wrangling ----------------
+  - {category: data, jmp: [Tabulate],                 user: [pivot table, cross tab, summary table, excel pivot]}
+  - {category: data, jmp: [Summary],                  user: [group by summary, aggregate, roll up, summarize by group]}
+  - {category: data, jmp: [Join, Virtual Join],       user: [vlookup, xlookup, lookup, merge tables, left join, inner join, sql join]}
+  - {category: data, jmp: [Concatenate],              user: [append tables, stack tables, union, stack tables vertically]}
+  - {category: data, jmp: [Transpose],                user: [transpose, flip rows and columns, pivot axis]}
+  - {category: data, jmp: [Stack],                    user: [unpivot, melt, wide to long, normalize columns]}
+  - {category: data, jmp: [Split],                    user: [long to wide, spread, cast, pivot wider]}
+  - {category: data, jmp: [Data Filter, Local Data Filter, Subset], user: [filter rows, subset data, slicer, where clause, query rows]}
+  - {category: data, jmp: [Recode],                   user: [recode, find and replace values, clean up categories, messy categories, inconsistent values, inconsistent category, category names, standardize values, fix typos, group values]}
+  - {category: data, jmp: [Formula Editor, Create Formulas], user: [calculated column, computed column, add a formula, derived field]}
+  - {category: data, jmp: [Make Binning Formula],     user: [bin values, bucket, discretize, group into ranges]}
+  - {category: data, jmp: [Query Builder],            user: [sql query, connect to database, odbc, import from sql]}
+  - {category: data, jmp: [Excel Import Wizard, Import Data], user: [import excel, read xlsx, open csv, import csv file]}
+  - {category: data, jmp: [Multiple File Import],     user: [import many files, batch import, import a folder]}
+  - {category: data, jmp: [Missing Data Pattern],     user: [missing pattern, missingness]}
+  # JMP has no first-class dedupe feature; it is done via Tables > Summary.
+  - {category: data, jmp: [Summary, Distinct],        user: [remove duplicates, duplicate rows, duplicates, deduplicate, unique rows, unique values, distinct count]}
+  - {category: data, jmp: [Sort],                     user: [sort rows, order by]}
+  - {category: data, jmp: [Column Info, Modeling Type], user: [change data type, set column type, numeric to character]}
+  - {category: data, jmp: [Standardize Attributes],   user: [bulk change columns, apply to many columns]}
+  - {category: data, jmp: [Workflow Builder],         user: [automate steps, record my actions, repeatable pipeline, etl]}
+
+  # ---------------- graphing ----------------
+  - {category: graph, jmp: [Distribution, Histogram], user: [histogram, frequency plot, distribution of a variable]}
+  - {category: graph, jmp: [Distribution, Graph Builder], user: [box plot, boxplot, box and whisker]}
+  - {category: graph, jmp: [Graph Builder, Bivariate], user: [scatter plot, scatterplot, xy plot]}
+  - {category: graph, jmp: [Graph Builder],           user: [bar chart, column chart, line chart, time series plot, area chart]}
+  - {category: graph, jmp: [Graph Builder, Cell Plot], user: [heat map, heatmap, matrix plot]}
+  - {category: graph, jmp: [Graph Builder],           user: [trellis, facet, small multiples, panel chart, subplot]}
+  - {category: graph, jmp: [Bubble Plot],             user: [bubble chart, motion chart]}
+  - {category: graph, jmp: [Scatterplot 3D, Surface Plot], user: [3d plot, three dimensional plot, surface plot]}
+  - {category: graph, jmp: [Normal Quantile Plot],    user: [qq plot, q-q plot, normal probability plot]}
+  - {category: graph, jmp: [Dashboard Builder],       user: [dashboard, combine reports, build a dashboard]}
+  - {category: graph, jmp: [Background Map, Map Shapes], user: [map, choropleth, geographic plot, plot by region, latitude longitude]}
+  - {category: graph, jmp: [Parallel Plot],           user: [parallel coordinates plot]}
+  - {category: graph, jmp: [Control Chart Builder],   user: [run chart, time ordered plot]}
+  - {category: graph, jmp: [Graph Builder],           user: [error bars, confidence bands, smoother, loess]}
+  - {category: graph, jmp: [Customize Graph, Graph Builder], user: [change colors, axis settings, chart formatting, legend]}
+
+  # ---------------- JMP UI idioms ----------------
+  - {category: ui, jmp: [red triangle menu, platform options], user: [red triangle, hotspot menu, platform menu, platform options, more options]}
+  - {category: ui, jmp: [By],                         user: [by variable, group by variable, split output by, analyze per group, separate analysis, each group, per group, for each level, one analysis per]}
+  - {category: ui, jmp: [Modeling Type],              user: [continuous nominal ordinal, modeling type, variable role]}
+  - {category: ui, jmp: [Fit Model personality],      user: [personality, model type in fit model]}
+  - {category: ui, jmp: [Row States],                 user: [exclude rows, hide rows, label rows, mark rows, selected rows]}
+  - {category: ui, jmp: [Local Data Filter],          user: [filter inside a report, interactive filter]}
+  - {category: ui, jmp: [Column Switcher],            user: [swap variables, cycle through columns]}
+  - {category: ui, jmp: [Column Properties, Spec Limits], user: [set spec limits, column property, control limits property]}
+  - {category: ui, jmp: [Value Ordering, Value Labels], user: [reorder categories, rename levels, custom sort order]}
+  - {category: ui, jmp: [Journal],                    user: [save my report, journal, presentation of results]}
+  - {category: ui, jmp: [Add-In],                     user: [plugin, addin, extension, install addin]}
+  - {category: ui, jmp: [JSL, Scripting Guide],       user: [script, automate, macro, programmatically, write code]}
+  - {category: ui, jmp: [Save Script],                user: [rerun analysis, reproduce analysis, save analysis script, rerun later]}
+  - {category: ui, jmp: [Sample Data],                user: [example data, sample data table, practice dataset]}
+  - {category: ui, jmp: [Preferences],                user: [settings, change defaults, options menu]}
+  - {category: ui, jmp: [Data Table],                 user: [spreadsheet, worksheet, grid]}
+  - {category: ui, jmp: [Graph Builder],              user: [drag and drop chart, interactive chart builder]}
+
+  # ---------------- coming from other tools ----------------
+  - {category: migration, jmp: [Transfer Data from Excel to JMP, Excel Import Wizard], user: [excel equivalent, from excel, excel equivalent, like excel]}
+  - {category: migration, jmp: [Profiler, Desirability Function], user: [solver, goal seek, optimizer]}
+  - {category: migration, jmp: [Tabulate],            user: [pivottable, excel pivot equivalent]}
+  - {category: migration, jmp: [JSL, Scripting Guide], user: [vba equivalent, vba macro, r script, python script]}
+  - {category: migration, jmp: [Query Builder],       user: [sql server, oracle, postgres, snowflake connection]}

@@ -1,0 +1,38 @@
+# Deploy-later composition. Local development does not need this.
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+
+  app:
+    build: .
+    depends_on: [ollama]
+    environment:
+      JMPDOCS_LLM__BASE_URL: http://ollama:11434
+      JMPDOCS_PATHS__DATA_DIR: /data
+    volumes:
+      - jmpdata:/data
+      - models:/models
+    ports:
+      - "8501:8501"
+
+  mcp:
+    build: .
+    depends_on: [ollama]
+    command: ["python", "-m", "jmpdocs.mcp_server", "--http", "--host", "0.0.0.0"]
+    environment:
+      JMPDOCS_LLM__BASE_URL: http://ollama:11434
+      JMPDOCS_PATHS__DATA_DIR: /data
+    volumes:
+      - jmpdata:/data
+      - models:/models
+    ports:
+      - "8000:8000"
+
+volumes:
+  ollama:
+  jmpdata:
+  models:

@@ -1,0 +1,26 @@
+{
+  "_comment": [
+    "Copy the 'jmp-docs' block into your claude_desktop_config.json, then replace",
+    "the two paths below with wherever you cloned this repository.",
+    "",
+    "  Windows : %APPDATA%\\Claude\\claude_desktop_config.json",
+    "  macOS   : ~/Library/Application Support/Claude/claude_desktop_config.json",
+    "",
+    "On Windows use double backslashes, as shown. On macOS and Linux use forward",
+    "slashes and .venv/bin/python instead of .venv\\Scripts\\python.exe.",
+    "",
+    "JMPDOCS_PATHS__DATA_DIR is only needed if you moved the data directory out",
+    "of the repo; otherwise delete that line."
+  ],
+
+  "mcpServers": {
+    "jmp-docs": {
+      "command": "C:\\path\\to\\jmp-docs-mcp\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "jmpdocs.mcp_server"],
+      "env": {
+        "PYTHONPATH": "C:\\path\\to\\jmp-docs-mcp\\src",
+        "JMPDOCS_PATHS__DATA_DIR": "C:/path/to/your/data"
+      }
+    }
+  }
+}

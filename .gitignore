@@ -1,0 +1,33 @@
+# --- environments & build artefacts -----------------------------------
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- local configuration ----------------------------------------------
+.env
+*.local.yaml
+
+# --- crawled JMP documentation ----------------------------------------
+# IMPORTANT: everything under data/ is derived from JMP's copyrighted
+# documentation (page text, ~4,250 figure images, and the embeddings built
+# from them). It must never be committed or redistributed. It is also fully
+# rebuildable on any machine:
+#     python scripts/build_corpus.py && python scripts/build_index.py
+data/
+!data/.gitkeep
+
+# --- editor / OS noise -------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

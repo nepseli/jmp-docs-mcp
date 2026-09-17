@@ -1,0 +1,49 @@
+# JMP documentation RAG -- default configuration.
+# Override any value with env vars, e.g. JMPDOCS_LLM__FAST_MODEL=qwen3:4b
+
+source:
+  version: "19.1"
+  base_url: "https://www.jmp.com/support/help/en/19.1"
+  toc_file: "jmp.html"        # 2.1 MB master TOC: every page, the UI map, TOC order
+  book_root: "jmp"            # topic pages live under /19.1/jmp/*.shtml
+
+crawl:
+  concurrency: 8
+  timeout: 30.0
+  retries: 3
+  delay: 0.05                 # politeness jitter between requests
+  user_agent: "jmpdocs-local-rag/0.1 (personal documentation assistant)"
+
+paths:
+  data_dir: "./data"          # see .env.example to move off OneDrive
+
+index:
+  embed_model: "BAAI/bge-base-en-v1.5"
+  rerank_model: "BAAI/bge-reranker-base"
+  embed_batch_size: 64
+  chunk_size: 1200
+  chunk_overlap: 200
+  min_page_chars: 200         # below this a page is kept as a single chunk
+
+retrieval:
+  k_per_query: 20             # candidates pulled per expanded query, per retriever
+  k_final: 6                  # survivors after reranking
+  rerank: false               # measured: same recall@6, ~10x the latency
+  rerank_candidates: 24       # pairs sent to the cross-encoder (CPU-bound)
+  rerank_max_chars: 800       # passage truncation for reranking
+  weight_dense: 0.6
+  weight_bm25: 0.4            # BM25 carries exact JSL identifiers like Choose()
+  page_type_boost: 0.15       # intent-aware nudge, deliberately soft
+
+llm:
+  provider: "ollama"
+  base_url: "http://localhost:11434"
+  answer_model: "qwen3:8b"    # ~10-15 s/answer on CPU; retrieval does the heavy lifting
+  fast_model: "qwen3:4b"      # query rewriting on follow-up turns only
+  temperature: 0.1
+  num_ctx: 8192
+  max_context_chars: 5000     # measured: ~55 tok/s prompt eval, so context costs real time
+  num_predict: 420            # generation runs ~8 tok/s; this bounds the worst case
+  use_llm_expansion: false    # qwen3 ignores no-think and emits 30s of prose; see rag_graph
+  reasoning: false            # qwen3 thinks by default; the excerpts do the reasoning
+  max_retrieval_retries: 1

@@ -1,0 +1,49 @@
+[project]
+name = "jmpdocs"
+version = "0.1.0"
+readme = "README.md"
+license = "MIT"
+description = "MCP server and chat app over the JMP 19.1 documentation. Fully local."
+requires-python = ">=3.11"
+dependencies = [
+    # LLM / graph
+    "langgraph>=1.0",
+    "langchain-core>=1.0",
+    "langchain-ollama>=1.1",
+    "langchain-text-splitters>=1.0",
+    # retrieval (used directly, not via langchain wrappers, so the
+    # alias-augmented BM25 text and intent boosting stay under our control)
+    "sentence-transformers>=4.1",
+    "faiss-cpu>=1.15",
+    "rank-bm25>=0.2.2",
+    # ingestion
+    "httpx>=0.28",
+    "beautifulsoup4>=4.13",
+    "lxml>=6.0",
+    # front doors
+    "fastmcp>=2.3",
+    "streamlit>=1.62",
+    # config
+    "pydantic-settings>=2.14",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/nepseli/jmp-docs-mcp"
+Repository = "https://github.com/nepseli/jmp-docs-mcp"
+Issues = "https://github.com/nepseli/jmp-docs-mcp/issues"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.24"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

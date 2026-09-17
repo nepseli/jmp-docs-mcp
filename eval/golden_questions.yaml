@@ -1,0 +1,219 @@
+# Retrieval evaluation set.
+#
+# Written deliberately in USER vocabulary, not documentation vocabulary. A set
+# phrased the way the docs phrase things would score near-perfect and tell us
+# nothing -- the whole risk in this project is the gap between the two.
+#
+# expect_title_any : at least one retrieved chunk's page title must contain one
+#                    of these (case-insensitive substring).
+# expect_intent    : the intent classifier should produce this.
+#
+# Scored by tests/test_retrieval.py as recall@k and MRR.
+
+questions:
+  # ---- the vocabulary bridge: JMP's name differs from the user's word ----
+  - id: vb-random-forest
+    q: How do I run a random forest in JMP?
+    category: vocabulary_bridge
+    expect_title_any: [Bootstrap Forest]
+    expect_intent: how_to
+
+  - id: vb-gradient-boosting
+    q: Does JMP support gradient boosting or XGBoost?
+    category: vocabulary_bridge
+    expect_title_any: [Boosted Tree]
+
+  - id: vb-decision-tree
+    q: I want to build a decision tree classifier
+    category: vocabulary_bridge
+    expect_title_any: [Partition]
+
+  - id: vb-pivot-table
+    q: How do I make a pivot table?
+    category: vocabulary_bridge
+    expect_title_any: [Tabulate]
+    expect_intent: how_to
+
+  - id: vb-vlookup
+    q: What is the JMP equivalent of VLOOKUP?
+    category: vocabulary_bridge
+    expect_title_any: [Join, Virtual]
+
+  - id: vb-cpk
+    q: How do I check if my process is capable and get Cpk?
+    category: vocabulary_bridge
+    expect_title_any: [Process Capability, Capability]
+
+  - id: vb-gage-rr
+    q: How do I do a Gage R&R study?
+    category: vocabulary_bridge
+    expect_title_any: [Variability Chart, Measurement Systems]
+
+  - id: vb-weibull
+    q: How do I fit a Weibull distribution to failure times?
+    category: vocabulary_bridge
+    expect_title_any: [Life Distribution, Weibull]
+
+  - id: vb-pca
+    q: How do I do PCA for dimension reduction?
+    category: vocabulary_bridge
+    expect_title_any: [Principal Components]
+
+  - id: vb-kmeans
+    q: How do I run k-means clustering?
+    category: vocabulary_bridge
+    expect_title_any: [K Means Cluster, Cluster]
+
+  - id: vb-anova
+    q: How do I run a one-way ANOVA to compare group means?
+    category: vocabulary_bridge
+    expect_title_any: [Oneway, Fit Y by X, Analysis of Variance]
+
+  - id: vb-logistic
+    q: How do I fit a logistic regression?
+    category: vocabulary_bridge
+    expect_title_any: [Logistic, Fit Model]
+
+  - id: vb-unpivot
+    q: How do I unpivot columns from wide to long format?
+    category: vocabulary_bridge
+    expect_title_any: [Stack]
+
+  # Kept deliberately, and expected to fail. JMP has no deduplication feature:
+  # the documented approach is Tables > Summary grouped by every column. There
+  # is no page that answers this directly, so the correct system behaviour is to
+  # return near-misses and have the model say the docs do not cover it. Deleting
+  # the question would hide a real gap rather than record it.
+  - id: vb-dedupe
+    q: How do I remove duplicate rows?
+    category: vocabulary_bridge
+    known_gap: true
+    expect_title_any: [Distinct, Summary, Duplicate]
+
+  - id: vb-heatmap
+    q: How do I make a heat map?
+    category: vocabulary_bridge
+    expect_title_any: [Graph Builder, Cell Plot, Heat]
+
+  # ---- intent routing: same topic, different kind of answer wanted ----
+  - id: ir-partition-howto
+    q: How do I run a Partition analysis?
+    category: intent_routing
+    expect_title_any: [Partition]
+    expect_intent: how_to
+
+  - id: ir-partition-math
+    q: How is the Partition split criterion computed?
+    category: intent_routing
+    expect_title_any: [Partition]
+    expect_intent: interpret
+
+  - id: ir-distribution-what
+    q: What is the Distribution platform?
+    category: intent_routing
+    expect_title_any: [Distribution]
+    expect_intent: what_is
+
+  - id: ir-profiler-options
+    q: What does the Desirability Function option do in the Profiler?
+    category: intent_routing
+    expect_title_any: [Desirability, Profiler]
+    expect_intent: option_lookup
+
+  - id: ir-example
+    q: Show me a worked example of the Tabulate platform
+    category: intent_routing
+    expect_title_any: [Tabulate]
+    expect_intent: example
+
+  # ---- scripting / JSL ----
+  - id: js-choose
+    q: What does the Choose function do in JSL?
+    category: scripting
+    expect_title_any: [Choose Function]
+    expect_intent: scripting
+
+  - id: js-new-window
+    q: How do I create a window in JSL?
+    category: scripting
+    expect_title_any: [New Window, Window]
+    expect_intent: scripting
+
+  - id: js-matrix
+    q: What matrix functions are available in JSL?
+    category: scripting
+    expect_title_any: [Matrix]
+
+  - id: js-addin
+    q: How do I build a JMP add-in?
+    category: scripting
+    expect_title_any: [Add-In, Add In]
+
+  # ---- data wrangling ----
+  - id: dw-formula
+    q: How do I add a new column with a formula?
+    category: data
+    expect_title_any: [Formula, New Column]
+    expect_intent: how_to
+
+  - id: dw-recode
+    q: How do I clean up inconsistent category names?
+    category: data
+    expect_title_any: [Recode]
+
+  - id: dw-import-excel
+    q: How do I import an Excel file?
+    category: data
+    expect_title_any: [Excel]
+    expect_intent: how_to
+
+  - id: dw-sql
+    q: How do I connect to a SQL database?
+    category: data
+    expect_title_any: [Query Builder, SQL, Database]
+
+  # ---- DOE ----
+  - id: doe-dsd
+    q: How do I create a definitive screening design?
+    category: doe
+    expect_title_any: [Definitive Screening]
+    expect_intent: how_to
+
+  - id: doe-custom
+    q: I have 5 factors and limited runs, what design should I use?
+    category: doe
+    expect_title_any: [Custom Design, Screening, Design]
+
+  - id: doe-rsm
+    q: How do I set up a response surface experiment?
+    category: doe
+    expect_title_any: [Response Surface]
+
+  # ---- quality ----
+  - id: q-control-chart
+    q: How do I make an X-bar and R control chart?
+    category: quality
+    expect_title_any: [Control Chart]
+    expect_intent: how_to
+
+  - id: q-pareto
+    q: How do I make a Pareto chart of defects?
+    category: quality
+    expect_title_any: [Pareto]
+
+  # ---- UI idioms ----
+  - id: ui-red-triangle
+    q: Where is the red triangle menu?
+    category: ui_idiom
+    expect_title_any: [Report, Option, Platform, Window, Menu]
+    expect_intent: where_is_it
+
+  - id: ui-by-variable
+    q: How do I run a separate analysis for each group?
+    category: ui_idiom
+    expect_title_any: [By, Group, Split]
+
+  - id: ui-local-filter
+    q: How do I filter data inside a report without changing the table?
+    category: ui_idiom
+    expect_title_any: [Data Filter, Filter]
