@@ -19,19 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-NOTE ON SCOPE
-
-This license covers the source code in this repository only.
-
-It does NOT cover the JMP documentation that the ingestion pipeline downloads
-at build time. That content is the property of JMP Statistical Discovery LLC
-and remains subject to their terms. The crawled corpus, the figure images and
-the index built from them are deliberately excluded from version control (see
-.gitignore) and must not be redistributed.
-
-This project is an independent, unofficial tool. It is not affiliated with,
-endorsed by, or sponsored by JMP Statistical Discovery LLC or SAS Institute
-Inc. "JMP" is a trademark of JMP Statistical Discovery LLC.

@@ -1,0 +1,44 @@
+NOTICE
+======
+
+Scope of the MIT license
+------------------------
+
+The MIT license in LICENSE covers the source code in this repository only.
+
+It does NOT cover the JMP documentation that the ingestion pipeline downloads
+at build time. That content is the property of JMP Statistical Discovery LLC
+and remains subject to their terms. The crawled corpus, the figure images and
+the search index built from them are deliberately excluded from version
+control (see .gitignore) and must not be redistributed.
+
+Each user builds their own index from the official source, and every answer
+the tool produces cites and links back to the original page.
+
+
+Trademarks and affiliation
+--------------------------
+
+This project is an independent, unofficial tool. It is not affiliated with,
+endorsed by, or sponsored by JMP Statistical Discovery LLC or SAS Institute
+Inc.
+
+"JMP" is a trademark of JMP Statistical Discovery LLC.
+
+If you represent JMP and would like something changed here, please open an
+issue on https://github.com/nepseli/jmp-docs-mcp/issues
+
+
+Third-party components
+----------------------
+
+This project builds on open-source work, each under its own license:
+
+  LangGraph, LangChain           MIT
+  FastMCP                        Apache-2.0
+  FAISS                          MIT
+  rank-bm25                      Apache-2.0
+  sentence-transformers          Apache-2.0
+  Streamlit                      Apache-2.0
+  BAAI/bge-base-en-v1.5 (model)  MIT
+  Qwen 3 (model, via Ollama)     Apache-2.0

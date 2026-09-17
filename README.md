@@ -366,4 +366,7 @@ If you represent JMP and would like something changed, please open an issue.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Covers the source code only, not the JMP documentation it retrieves.
+MIT — see [LICENSE](LICENSE).
+
+The licence covers **the source code only**, not the JMP documentation this tool
+retrieves. See [NOTICE](NOTICE) for scope, trademarks and third-party components.
