@@ -7,18 +7,21 @@
       - starts the Ollama server if it is not already listening
       - starts Streamlit detached, so it keeps running after you close the window
       - waits until the app actually answers, rather than assuming it worked
-      - refuses to start a second copy if one is already running
+      - health-checks rather than just port-checks, and replaces a hung copy
+      - tells you up front if the search index has not been built yet
 
 .EXAMPLE
     .\Start-JmpDocs.ps1
     .\Start-JmpDocs.ps1 -Stop
     .\Start-JmpDocs.ps1 -Status
+    .\Start-JmpDocs.ps1 -Restart
 #>
 [CmdletBinding()]
 param(
     [int]$Port = 8501,
     [switch]$Stop,
-    [switch]$Status
+    [switch]$Status,
+    [switch]$Restart
 )
 
 $ErrorActionPreference = 'Stop'
@@ -29,8 +32,39 @@ $OllamaExe = Join-Path $env:LOCALAPPDATA 'Programs\Ollama\ollama.exe'
 $Log       = Join-Path $env:TEMP 'jmpdocs-streamlit.log'
 $PidFile   = Join-Path $env:TEMP 'jmpdocs-streamlit.pid'
 
+# Resolve the data directory the same way the app does: .env wins over the
+# config.yaml default of ./data.
+$DataDir = Join-Path $Proj 'data'
+$EnvFile = Join-Path $Proj '.env'
+if (Test-Path $EnvFile) {
+    $line = Select-String -Path $EnvFile -Pattern '^\s*JMPDOCS_PATHS__DATA_DIR\s*=\s*(.+)$' |
+            Select-Object -First 1
+    if ($line) { $DataDir = $line.Matches[0].Groups[1].Value.Trim().Trim('"') }
+}
+$IndexFile = Join-Path (Join-Path $DataDir 'index') 'faiss.index'
+
 function Test-Port([int]$p) {
     [bool](Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue)
+}
+
+function Test-AppHealthy([int]$p) {
+    # A listening port is NOT proof the app works. A process can hold 8501 while
+    # serving an error page. Ask Streamlit's health endpoint instead.
+    try {
+        return (Invoke-WebRequest "http://localhost:$p/_stcore/health" `
+                    -TimeoutSec 4 -UseBasicParsing).Content -eq 'ok'
+    } catch { return $false }
+}
+
+function Stop-OnPort([int]$p) {
+    foreach ($c in @(Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue)) {
+        Stop-Process -Id $c.OwningProcess -Force -ErrorAction SilentlyContinue
+    }
+    # Streamlit runs as a parent + child pair; sweep any strays from this repo.
+    Get-CimInstance Win32_Process -Filter "Name like '%python%'" -ErrorAction SilentlyContinue |
+        Where-Object { $_.CommandLine -like "*streamlit*jmpdocs*" -or $_.CommandLine -like "*streamlit run src/jmpdocs*" } |
+        ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+    Start-Sleep -Seconds 2
 }
 
 function Get-AppPid {
@@ -45,9 +79,15 @@ function Get-AppPid {
 # ---------------------------------------------------------------- status ----
 if ($Status) {
     "ollama (11434) : $(if (Test-Port 11434) { 'running' } else { 'stopped' })"
-    "app    ($Port) : $(if (Test-Port $Port)  { 'running' } else { 'stopped' })"
+    if (Test-Port $Port) {
+        $healthy = Test-AppHealthy $Port
+        "app    ($Port) : listening, $(if ($healthy) { 'healthy' } else { 'NOT RESPONDING - run with -Restart' })"
+    } else {
+        "app    ($Port) : stopped"
+    }
     $appPid = Get-AppPid
     if ($appPid) { "app pid        : $appPid" }
+    "index          : $(if (Test-Path $IndexFile) { 'built' } else { 'NOT BUILT - run scripts/build_index.py' })"
     "url            : http://localhost:$Port"
     "log            : $Log"
     return
@@ -55,19 +95,12 @@ if ($Status) {
 
 # ------------------------------------------------------------------ stop ----
 if ($Stop) {
+    $was = (Test-Port $Port) -or (Get-AppPid)
     $appPid = Get-AppPid
-    if ($appPid) {
-        Stop-Process -Id $appPid -Force -ErrorAction SilentlyContinue
-        Remove-Item $PidFile -ErrorAction SilentlyContinue
-        "stopped app (pid $appPid)"
-    }
-    # catch any stray listener on the port too
-    $conn = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
-    foreach ($c in $conn) {
-        Stop-Process -Id $c.OwningProcess -Force -ErrorAction SilentlyContinue
-        "stopped stray listener on port $Port (pid $($c.OwningProcess))"
-    }
-    if (-not $appPid -and -not $conn) { "nothing was running on port $Port" }
+    if ($appPid) { Stop-Process -Id $appPid -Force -ErrorAction SilentlyContinue }
+    Remove-Item $PidFile -ErrorAction SilentlyContinue
+    Stop-OnPort $Port
+    if ($was) { "stopped" } else { "nothing was running on port $Port" }
     return
 }
 
@@ -76,9 +109,29 @@ if (-not (Test-Path $Python)) {
     throw "virtualenv not found at $Python. Run:  python -m venv .venv ;  .\.venv\Scripts\python.exe -m pip install -e `".[dev]`""
 }
 
+# The index must exist, or the app starts fine and then reports that it has
+# nothing to search -- which looks like a launcher failure but isn't.
+if (-not (Test-Path $IndexFile)) {
+    Write-Warning "The search index is missing: $IndexFile"
+    Write-Host   "Build it first (about 70 minutes, one time):"
+    Write-Host   "    .\.venv\Scripts\python.exe scripts\build_corpus.py"
+    Write-Host   "    .\.venv\Scripts\python.exe scripts\build_index.py"
+    Write-Host   ""
+    Write-Host   "If you built it elsewhere, point .env at it with JMPDOCS_PATHS__DATA_DIR."
+    exit 1
+}
+
 if (Test-Port $Port) {
-    "app already running -> http://localhost:$Port"
-    return
+    if (-not $Restart -and (Test-AppHealthy $Port)) {
+        "app already running and healthy -> http://localhost:$Port"
+        return
+    }
+    # Either the caller asked for a restart, or something is squatting on the
+    # port without serving. A port check alone would wrongly report success here.
+    if ($Restart) { Write-Host 'restarting...' }
+    else { Write-Warning "something is on port $Port but not responding - replacing it" }
+    Stop-OnPort $Port
+    Remove-Item $PidFile -ErrorAction SilentlyContinue
 }
 
 # Ollama must be up or every answer fails with a connection error.

@@ -134,7 +134,19 @@ Double-click **`Start JMP Docs.bat`**, or:
 .\Start-JmpDocs.ps1
 ```
 
-Open **http://localhost:8501**. Use `-Status` and `-Stop` to manage it.
+Open **http://localhost:8501**.
+
+| Command | Does |
+|---|---|
+| `.\Start-JmpDocs.ps1` | Start (starts Ollama too if needed) |
+| `.\Start-JmpDocs.ps1 -Status` | Is it running? Is it healthy? Is the index built? |
+| `.\Start-JmpDocs.ps1 -Restart` | Force a clean restart |
+| `.\Start-JmpDocs.ps1 -Stop` | Stop it |
+
+> **If the app says "the documentation index has not been built yet"** but you
+> know you built it, the running copy is stale — use `-Restart`. The launcher
+> health-checks rather than just checking whether the port is busy, so it will
+> replace a hung instance instead of reporting a false success.
 
 <details>
 <summary><b>macOS / Linux (untested)</b></summary>
